@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Welcome, {{ session['user_name'] }}</h2>
+
+<div class="row mt-3">
+    <div class="col-md-4">
+        <div class="card-box">
+            <h5>Total Subscriptions</h5>
+            <h2>{{ subscriptions|length }}</h2>
+        </div>
+    </div>
+</div>
+
+<hr>
+
+<div class="card-box mt-3">
+    <h4>Your Subscriptions</h4>
+
+    <table class="table table-hover mt-3">
+        <thead>
+            <tr>
+                <th>Plan</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Status</th>
+                <th>Days Left</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for sub in subscriptions %}
+            <tr>
+                <td>{{ sub[1] }}</td>
+                <td>{{ sub[2] }}</td>
+                <td>{{ sub[3] }}</td>
+
+                <td>
+                    {% if sub[4] == 'active' %}
+                        <span class="badge bg-success">Active</span>
+                    {% elif sub[4] == 'expired' %}
+                        <span class="badge bg-danger">Expired</span>
+                    {% else %}
+                        <span class="badge bg-warning">Canceled</span>
+                    {% endif %}
+                </td>
+
+                <td>{{ sub[5] }}</td>
+
+                <td>
+                    {% if sub[4] == 'active' %}
+                        <a href="/cancel/{{ sub[0] }}" class="btn btn-warning btn-sm">Cancel</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

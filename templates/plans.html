@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Available Plans</h2>
+
+<div class="row mt-3">
+
+    {% for plan in plans %}
+    <div class="col-md-4">
+        <div class="card-box text-center">
+            <h4>{{ plan[1] }}</h4>
+            <h3>₱{{ plan[2] }}</h3>
+            <p>{{ plan[3] }}</p>
+
+            <a href="/subscribe/{{ plan[0] }}" class="btn btn-primary w-100">
+                Subscribe
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+{% endblock %}
