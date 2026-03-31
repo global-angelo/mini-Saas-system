@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block page_title %}Manage Courses{% endblock %}
+{% block page_subtitle %}Add and organize courses by subscription plan{% endblock %}
+
+{% block content %}
+
+<div class="row g-4">
+    <!-- ADD COURSE -->
+    <div class="col-lg-4">
+        <div class="content-card">
+            <div class="card-header-custom">
+                <h2 class="card-title"><i class="bi bi-plus-circle-fill"></i> Add Course</h2>
+            </div>
+            <form method="POST" action="/admin/create_course">
+                <div class="form-group">
+                    <label class="form-label">Course Title</label>
+                    <input name="title" class="form-input" placeholder="e.g. Python Basics" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-input" rows="3" placeholder="What will students learn?"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Assign to Plan</label>
+                    <select name="plan_id" class="form-input" required>
+                        {% for p in plans %}
+                        <option value="{{ p['id'] }}">{{ p['name'] }} (₱{{ "%.2f"|format(p['price']) }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn-custom btn-primary-custom w-100">
+                    <i class="bi bi-plus-lg"></i> Add Course
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- COURSE LIST -->
+    <div class="col-lg-8">
+        <div class="content-card">
+            <div class="card-header-custom">
+                <h2 class="card-title"><i class="bi bi-journal-text"></i> All Courses</h2>
+                <span class="badge-count">{{ courses|length }}</span>
+            </div>
+
+            {% if courses %}
+            <div class="table-wrapper">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Plan</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in courses %}
+                        <tr>
+                            <td><strong>{{ c['title'] }}</strong></td>
+                            <td class="text-muted-custom">{{ c['description'][:60] }}{% if c['description']|length > 60 %}...{% endif %}</td>
+                            <td><span class="badge-status badge-active">{{ c['plan_name'] }}</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-icon" title="Edit" onclick="openEditCourse({{ c['id'] }}, '{{ c['title'] }}', '{{ c['description'] }}', {{ c['plan_id'] }})">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </button>
+                                    <a href="/admin/delete_course/{{ c['id'] }}" class="btn-icon btn-icon-danger" title="Delete" onclick="return confirm('Delete this course?')">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon"><i class="bi bi-journal-x"></i></div>
+                <h3>No Courses Yet</h3>
+                <p>Add your first course using the form on the left.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- EDIT COURSE MODAL -->
+<div class="modal-overlay" id="editCourseModal" style="display:none;">
+    <div class="modal-card">
+        <div class="modal-header-custom">
+            <h3>Edit Course</h3>
+            <button class="modal-close" onclick="document.getElementById('editCourseModal').style.display='none'">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <form method="POST" id="editCourseForm">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Course Title</label>
+                    <input name="title" id="editCourseTitle" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" id="editCourseDesc" class="form-input" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Assign to Plan</label>
+                    <select name="plan_id" id="editCoursePlan" class="form-input" required>
+                        {% for p in plans %}
+                        <option value="{{ p['id'] }}">{{ p['name'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer-custom">
+                <button type="button" class="btn-custom btn-secondary-custom" onclick="document.getElementById('editCourseModal').style.display='none'">Cancel</button>
+                <button type="submit" class="btn-custom btn-primary-custom">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openEditCourse(id, title, desc, planId) {
+    document.getElementById('editCourseForm').action = '/admin/edit_course/' + id;
+    document.getElementById('editCourseTitle').value = title;
+    document.getElementById('editCourseDesc').value = desc;
+    document.getElementById('editCoursePlan').value = planId;
+    document.getElementById('editCourseModal').style.display = 'flex';
+}
+</script>
+
+{% endblock %}

@@ -1,99 +1,169 @@
 {% extends "base.html" %}
+
+{% block page_title %}Admin Dashboard{% endblock %}
+{% block page_subtitle %}Overview of your platform's performance{% endblock %}
+
 {% block content %}
 
-<h2>Admin Dashboard</h2>
-
-<div class="row mt-3">
-    <div class="col-md-4">
-        <div class="card-box">
-            <h5>Total Plans</h5>
-            <h2>{{ plans|length }}</h2>
+<!-- STATS -->
+<div class="stats-grid">
+    <div class="stat-card stat-primary">
+        <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+        <div class="stat-info">
+            <span class="stat-value">{{ total_users }}</span>
+            <span class="stat-label">Total Users</span>
+        </div>
+    </div>
+    <div class="stat-card stat-success">
+        <div class="stat-icon"><i class="bi bi-bookmark-check-fill"></i></div>
+        <div class="stat-info">
+            <span class="stat-value">{{ active_subs }}</span>
+            <span class="stat-label">Active Subscriptions</span>
+        </div>
+    </div>
+    <div class="stat-card stat-info">
+        <div class="stat-icon"><i class="bi bi-currency-exchange"></i></div>
+        <div class="stat-info">
+            <span class="stat-value">₱{{ "%.2f"|format(revenue) }}</span>
+            <span class="stat-label">Active Revenue</span>
+        </div>
+    </div>
+    <div class="stat-card stat-warning">
+        <div class="stat-icon"><i class="bi bi-exclamation-circle-fill"></i></div>
+        <div class="stat-info">
+            <span class="stat-value">{{ pending_cancellations }}</span>
+            <span class="stat-label">Pending Cancellations</span>
         </div>
     </div>
 </div>
 
-<hr>
-
-<div class="card-box mt-3">
-    <h4>Create Plan</h4>
-
-    <form method="POST" action="/admin/create_plan" class="row g-2">
-        <div class="col-md-4">
-            <input name="name" class="form-control" placeholder="Plan Name" required>
+<div class="row g-4">
+    <!-- CREATE PLAN -->
+    <div class="col-lg-5">
+        <div class="content-card">
+            <div class="card-header-custom">
+                <h2 class="card-title"><i class="bi bi-plus-circle-fill"></i> Create Plan</h2>
+            </div>
+            <form method="POST" action="/admin/create_plan">
+                <div class="form-group">
+                    <label class="form-label">Plan Name</label>
+                    <input name="name" class="form-input" placeholder="e.g. Starter" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-input" rows="2" placeholder="Brief description..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Price (₱)</label>
+                        <input name="price" type="number" step="0.01" class="form-input" placeholder="299" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Billing Cycle</label>
+                        <select name="billing_cycle" class="form-input" required>
+                            <option value="Monthly">Monthly</option>
+                            <option value="Quarterly">Quarterly</option>
+                            <option value="Yearly">Yearly</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn-custom btn-primary-custom w-100">
+                    <i class="bi bi-plus-lg"></i> Create Plan
+                </button>
+            </form>
         </div>
+    </div>
 
-        <div class="col-md-3">
-            <input name="price" class="form-control" placeholder="Price" required>
+    <!-- ALL PLANS -->
+    <div class="col-lg-7">
+        <div class="content-card">
+            <div class="card-header-custom">
+                <h2 class="card-title"><i class="bi bi-tags-fill"></i> All Plans</h2>
+                <span class="badge-count">{{ plans|length }}</span>
+            </div>
+            <div class="table-wrapper">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Cycle</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in plans %}
+                        <tr>
+                            <td><strong>{{ p['name'] }}</strong></td>
+                            <td>₱{{ "%.2f"|format(p['price']) }}</td>
+                            <td>{{ p['billing_cycle'] }}</td>
+                            <td>
+                                {% if p['status'] == 'active' %}
+                                    <span class="badge-status badge-active">Active</span>
+                                {% else %}
+                                    <span class="badge-status badge-expired">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-btns">
+                                    <a href="/admin/edit_plan/{{ p['id'] }}" class="btn-icon" title="Edit">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </a>
+                                    <a href="/admin/toggle_plan/{{ p['id'] }}" class="btn-icon btn-icon-warning" title="Toggle">
+                                        <i class="bi bi-toggle-{{ 'on' if p['status'] == 'active' else 'off' }}"></i>
+                                    </a>
+                                    <a href="/admin/delete_plan/{{ p['id'] }}" class="btn-icon btn-icon-danger" title="Delete" onclick="return confirm('Delete this plan?')">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-
-        <div class="col-md-3">
-            <input name="billing_cycle" class="form-control" placeholder="Monthly/Yearly" required>
-        </div>
-
-        <div class="col-md-2">
-            <button class="btn btn-success w-100">Create</button>
-        </div>
-    </form>
+    </div>
 </div>
 
-<div class="card-box mt-4">
-    <h4>All Plans</h4>
-
-    <table class="table table-hover">
-        <tr>
-            <th>Name</th>
-            <th>Price</th>
-            <th>Cycle</th>
-            <th>Action</th>
-        </tr>
-
-        {% for p in plans %}
-        <tr>
-            <td>{{ p[1] }}</td>
-            <td>₱{{ p[2] }}</td>
-            <td>{{ p[3] }}</td>
-            <td>
-                <a href="/admin/delete_plan/{{ p[0] }}" class="btn btn-danger btn-sm">
-                    Delete
-                </a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
-
-<hr>
-
-<div class="card-box">
-    <h4>User Subscriptions</h4>
-
-    <table class="table table-striped">
-        <tr>
-            <th>User</th>
-            <th>Plan</th>
-            <th>Status</th>
-            <th>End Date</th>
-        </tr>
-
-        {% for s in subscriptions %}
-        <tr>
-            <td>{{ s[1] }}</td>
-            <td>{{ s[2] }}</td>
-
-            <td>
-                {% if s[3] == 'active' %}
-                    <span class="badge bg-success">Active</span>
-                {% elif s[3] == 'expired' %}
-                    <span class="badge bg-danger">Expired</span>
-                {% else %}
-                    <span class="badge bg-warning">Canceled</span>
-                {% endif %}
-            </td>
-
-            <td>{{ s[4] }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+<!-- RECENT SUBSCRIPTIONS -->
+<div class="content-card mt-4">
+    <div class="card-header-custom">
+        <h2 class="card-title"><i class="bi bi-clock-history"></i> Recent Subscriptions</h2>
+    </div>
+    <div class="table-wrapper">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Plan</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in recent_subs %}
+                <tr>
+                    <td><strong>{{ s['user_name'] }}</strong></td>
+                    <td>{{ s['plan_name'] }}</td>
+                    <td>{{ s['start_date'] }}</td>
+                    <td>{{ s['end_date'] }}</td>
+                    <td>
+                        {% if s['status'] == 'active' %}
+                            <span class="badge-status badge-active">Active</span>
+                        {% elif s['status'] == 'expired' %}
+                            <span class="badge-status badge-expired">Expired</span>
+                        {% else %}
+                            <span class="badge-status badge-canceled">Canceled</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
 {% endblock %}

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block page_title %}Cancellation Requests{% endblock %}
+{% block page_subtitle %}Review and process user cancellation requests{% endblock %}
+
+{% block content %}
+
+<div class="content-card">
+    <div class="card-header-custom">
+        <h2 class="card-title"><i class="bi bi-x-circle-fill"></i> All Requests</h2>
+        <span class="badge-count">{{ requests|length }}</span>
+    </div>
+
+    {% if requests %}
+    <div class="table-wrapper">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Plan</th>
+                    <th>Period</th>
+                    <th>Reason</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar-sm">{{ req['user_name'][0]|upper }}</div>
+                            <strong>{{ req['user_name'] }}</strong>
+                        </div>
+                    </td>
+                    <td>{{ req['email'] }}</td>
+                    <td>{{ req['plan_name'] }}</td>
+                    <td>{{ req['start_date'] }} — {{ req['end_date'] }}</td>
+                    <td>{{ req['reason'] or '—' }}</td>
+                    <td>{{ req['created_at'] }}</td>
+                    <td>
+                        {% if req['status'] == 'pending' %}
+                            <span class="badge-status badge-pending">Pending</span>
+                        {% elif req['status'] == 'approved' %}
+                            <span class="badge-status badge-active">Approved</span>
+                        {% else %}
+                            <span class="badge-status badge-expired">Rejected</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if req['status'] == 'pending' %}
+                        <div class="action-btns">
+                            <form method="POST" action="/admin/process_cancellation/{{ req['id'] }}" style="display:inline;">
+                                <input type="hidden" name="action" value="approve">
+                                <button type="submit" class="btn-icon btn-icon-success" title="Approve">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                            </form>
+                            <form method="POST" action="/admin/process_cancellation/{{ req['id'] }}" style="display:inline;">
+                                <input type="hidden" name="action" value="reject">
+                                <button type="submit" class="btn-icon btn-icon-danger" title="Reject">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </form>
+                        </div>
+                        {% else %}
+                            <span class="text-muted-custom">{{ req['processed_at'] }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><i class="bi bi-check-circle"></i></div>
+        <h3>No Requests</h3>
+        <p>There are no cancellation requests at this time.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

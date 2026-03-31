@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block page_title %}Reports{% endblock %}
+{% block page_subtitle %}Platform analytics and performance summary{% endblock %}
+
+{% block content %}
+
+<!-- OVERVIEW STATS -->
+<div class="stats-grid">
+    <div class="stat-card stat-primary">
+        <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+        <div class="stat-info">
+            <span class="stat-value">{{ total_users }}</span>
+            <span class="stat-label">Total Users</span>
+        </div>
+    </div>
+    <div class="stat-card stat-success">
+        <div class="stat-icon"><i class="bi bi-currency-exchange"></i></div>
+        <div class="stat-info">
+            <span class="stat-value">₱{{ "%.2f"|format(revenue) }}</span>
+            <span class="stat-label">Active Revenue</span>
+        </div>
+    </div>
+    <div class="stat-card stat-info">
+        <div class="stat-icon"><i class="bi bi-bookmark-check-fill"></i></div>
+        <div class="stat-info">
+            <span class="stat-value">{{ active_subs }}</span>
+            <span class="stat-label">Active Subs</span>
+        </div>
+    </div>
+    <div class="stat-card stat-warning">
+        <div class="stat-icon"><i class="bi bi-x-circle-fill"></i></div>
+        <div class="stat-info">
+            <span class="stat-value">{{ canceled_subs }}</span>
+            <span class="stat-label">Canceled</span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- SUBSCRIPTION SUMMARY -->
+    <div class="col-lg-6">
+        <div class="content-card">
+            <div class="card-header-custom">
+                <h2 class="card-title"><i class="bi bi-pie-chart-fill"></i> Subscription Summary</h2>
+            </div>
+            <div class="report-summary">
+                <div class="report-bar">
+                    <div class="report-bar-label">
+                        <span class="report-dot dot-success"></span>
+                        <span>Active</span>
+                    </div>
+                    <div class="report-bar-track">
+                        <div class="report-bar-fill bar-success" style="width: {% if active_subs + expired_subs + canceled_subs > 0 %}{{ (active_subs / (active_subs + expired_subs + canceled_subs) * 100)|int }}{% else %}0{% endif %}%"></div>
+                    </div>
+                    <span class="report-bar-value">{{ active_subs }}</span>
+                </div>
+                <div class="report-bar">
+                    <div class="report-bar-label">
+                        <span class="report-dot dot-danger"></span>
+                        <span>Expired</span>
+                    </div>
+                    <div class="report-bar-track">
+                        <div class="report-bar-fill bar-danger" style="width: {% if active_subs + expired_subs + canceled_subs > 0 %}{{ (expired_subs / (active_subs + expired_subs + canceled_subs) * 100)|int }}{% else %}0{% endif %}%"></div>
+                    </div>
+                    <span class="report-bar-value">{{ expired_subs }}</span>
+                </div>
+                <div class="report-bar">
+                    <div class="report-bar-label">
+                        <span class="report-dot dot-warning"></span>
+                        <span>Canceled</span>
+                    </div>
+                    <div class="report-bar-track">
+                        <div class="report-bar-fill bar-warning" style="width: {% if active_subs + expired_subs + canceled_subs > 0 %}{{ (canceled_subs / (active_subs + expired_subs + canceled_subs) * 100)|int }}{% else %}0{% endif %}%"></div>
+                    </div>
+                    <span class="report-bar-value">{{ canceled_subs }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CANCELLATION SUMMARY -->
+    <div class="col-lg-6">
+        <div class="content-card">
+            <div class="card-header-custom">
+                <h2 class="card-title"><i class="bi bi-clipboard-data-fill"></i> Cancellation Summary</h2>
+            </div>
+            <div class="report-grid">
+                <div class="report-stat">
+                    <span class="report-stat-value">{{ total_cancel_requests }}</span>
+                    <span class="report-stat-label">Total Requests</span>
+                </div>
+                <div class="report-stat">
+                    <span class="report-stat-value text-warning">{{ pending_cancellations }}</span>
+                    <span class="report-stat-label">Pending</span>
+                </div>
+                <div class="report-stat">
+                    <span class="report-stat-value text-success">{{ approved_cancellations }}</span>
+                    <span class="report-stat-label">Approved</span>
+                </div>
+                <div class="report-stat">
+                    <span class="report-stat-value text-danger">{{ rejected_cancellations }}</span>
+                    <span class="report-stat-label">Rejected</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PLAN PERFORMANCE -->
+<div class="content-card mt-4">
+    <div class="card-header-custom">
+        <h2 class="card-title"><i class="bi bi-bar-chart-fill"></i> Plan Performance</h2>
+    </div>
+    <div class="table-wrapper">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Plan</th>
+                    <th>Price</th>
+                    <th>Cycle</th>
+                    <th>Status</th>
+                    <th>Active</th>
+                    <th>Expired</th>
+                    <th>Canceled</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in plan_stats %}
+                <tr>
+                    <td><strong>{{ p['name'] }}</strong></td>
+                    <td>₱{{ "%.2f"|format(p['price']) }}</td>
+                    <td>{{ p['billing_cycle'] }}</td>
+                    <td>
+                        {% if p['status'] == 'active' %}
+                            <span class="badge-status badge-active">Active</span>
+                        {% else %}
+                            <span class="badge-status badge-expired">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td><span class="text-success fw-bold">{{ p['active_count'] }}</span></td>
+                    <td><span class="text-danger">{{ p['expired_count'] }}</span></td>
+                    <td><span class="text-warning">{{ p['canceled_count'] }}</span></td>
+                    <td><strong>{{ p['total_subs'] }}</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- RECENT SIGNUPS -->
+<div class="content-card mt-4">
+    <div class="card-header-custom">
+        <h2 class="card-title"><i class="bi bi-person-plus-fill"></i> Recent Signups</h2>
+    </div>
+    {% if recent_users %}
+    <div class="table-wrapper">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Joined</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in recent_users %}
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar-sm">{{ u['name'][0]|upper }}</div>
+                            <strong>{{ u['name'] }}</strong>
+                        </div>
+                    </td>
+                    <td>{{ u['email'] }}</td>
+                    <td>{{ u['created_at'] or '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No recent signups.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

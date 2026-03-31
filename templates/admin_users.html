@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block page_title %}Manage Users{% endblock %}
+{% block page_subtitle %}View and manage registered users{% endblock %}
+
+{% block content %}
+
+<div class="content-card">
+    <div class="card-header-custom">
+        <h2 class="card-title"><i class="bi bi-people-fill"></i> Registered Users</h2>
+        <span class="badge-count">{{ users|length }}</span>
+    </div>
+
+    {% if users %}
+    <div class="table-wrapper">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Current Plan</th>
+                    <th>Active Subs</th>
+                    <th>Joined</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td>#{{ u['id'] }}</td>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar-sm">{{ u['name'][0]|upper }}</div>
+                            <strong>{{ u['name'] }}</strong>
+                        </div>
+                    </td>
+                    <td>{{ u['email'] }}</td>
+                    <td>
+                        {% if u['current_plan'] %}
+                            <span class="badge-status badge-active">{{ u['current_plan'] }}</span>
+                        {% else %}
+                            <span class="text-muted-custom">No plan</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ u['active_subs'] }}</td>
+                    <td>{{ u['created_at'] or '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><i class="bi bi-people"></i></div>
+        <h3>No Users Yet</h3>
+        <p>No users have registered on the platform yet.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

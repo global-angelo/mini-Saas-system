@@ -1,85 +1,58 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+{% extends "base.html" %}
+{% block auth_content %}
+<div class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+                <h1 class="auth-title">Welcome Back</h1>
+                <p class="auth-subtitle">Sign in to Substra Learn to continue your journey</p>
+            </div>
 
-    <style>
-        body {
-            background: linear-gradient(135deg, #0f172a, #1e293b);
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
-        }
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                <div class="alert-custom alert-{{ category }}" style="margin-bottom: 16px;">
+                    <i class="bi {% if category == 'success' %}bi-check-circle-fill{% elif category == 'danger' %}bi-exclamation-circle-fill{% else %}bi-info-circle-fill{% endif %}"></i>
+                    <span>{{ message }}</span>
+                </div>
+                {% endfor %}
+            {% endwith %}
 
-        .auth-card {
-            width: 100%;
-            max-width: 420px;
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
-        }
+            <form method="POST" class="auth-form">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <div class="input-icon-wrapper">
+                        <i class="bi bi-envelope"></i>
+                        <input type="email" name="email" class="form-input" placeholder="Enter your email" required>
+                    </div>
+                </div>
 
-        .title {
-            font-weight: 700;
-            font-size: 22px;
-            margin-bottom: 5px;
-        }
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="input-icon-wrapper">
+                        <i class="bi bi-lock"></i>
+                        <input type="password" name="password" class="form-input" placeholder="Enter your password" required>
+                    </div>
+                </div>
 
-        .subtitle {
-            color: #64748b;
-            font-size: 13px;
-            margin-bottom: 20px;
-        }
+                <button type="submit" class="btn-auth">
+                    <span>Sign In</span>
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </form>
 
-        .form-control {
-            padding: 12px;
-            border-radius: 10px;
-        }
+            <div class="auth-footer">
+                Don't have an account? <a href="/register">Create one</a>
+            </div>
+        </div>
 
-        .btn-primary {
-            background: #3b82f6;
-            border: none;
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: 600;
-        }
-
-        .link {
-            font-size: 13px;
-            text-align: center;
-            margin-top: 15px;
-        }
-
-        .link a {
-            text-decoration: none;
-            color: #3b82f6;
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="auth-card">
-
-    <div class="title">Login to your SUBSCRIPTIONZ account</div>
-    
-
-    <form method="POST">
-        <input class="form-control mb-3" name="email" placeholder="Email" required>
-        <input class="form-control mb-3" name="password" type="password" placeholder="Password" required>
-
-        <button class="btn btn-primary w-100">Login</button>
-    </form>
-
-    <div class="link">
-        Don't have an account? <a href="/register">Create one</a>
+        <div class="auth-decoration">
+            <div class="decoration-shape shape-1"></div>
+            <div class="decoration-shape shape-2"></div>
+            <div class="decoration-shape shape-3"></div>
+        </div>
     </div>
-
 </div>
-
-</body>
-</html>
+{% endblock %}

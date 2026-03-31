@@ -1,24 +1,88 @@
 {% extends "base.html" %}
+
+{% block page_title %}Browse Plans{% endblock %}
+{% block page_subtitle %}Choose the perfect plan for your learning journey{% endblock %}
+
 {% block content %}
 
-<h2>Available Plans</h2>
-
-<div class="row mt-3">
-
+<div class="plans-grid">
     {% for plan in plans %}
-    <div class="col-md-4">
-        <div class="card-box text-center">
-            <h4>{{ plan[1] }}</h4>
-            <h3>₱{{ plan[2] }}</h3>
-            <p>{{ plan[3] }}</p>
+    <div class="plan-card {% if loop.index == 2 %}plan-featured{% endif %} {% if active_plan_id == plan['id'] %}plan-current{% endif %}">
 
-            <a href="/subscribe/{{ plan[0] }}" class="btn btn-primary w-100">
-                Subscribe
-            </a>
+        {% if loop.index == 2 %}
+        <div class="plan-badge">Most Popular</div>
+        {% endif %}
+
+        {% if active_plan_id == plan['id'] %}
+        <div class="plan-badge plan-badge-current">Current Plan</div>
+        {% endif %}
+
+        <div class="plan-header">
+            <div class="plan-icon plan-icon-{{ loop.index }}">
+                {% if loop.index == 1 %}
+                    <i class="bi bi-rocket"></i>
+                {% elif loop.index == 2 %}
+                    <i class="bi bi-lightning-fill"></i>
+                {% else %}
+                    <i class="bi bi-gem"></i>
+                {% endif %}
+            </div>
+            <h3 class="plan-name">{{ plan['name'] }}</h3>
+            <p class="plan-description">{{ plan['description'] }}</p>
+        </div>
+
+        <div class="plan-pricing">
+            <span class="plan-currency">₱</span>
+            <span class="plan-amount">{{ "%.0f"|format(plan['price']) }}</span>
+            <span class="plan-cycle">/{{ plan['billing_cycle']|lower }}</span>
+        </div>
+
+        <div class="plan-features">
+            {% if loop.index >= 1 %}
+            <div class="plan-feature">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Access to foundational courses</span>
+            </div>
+            {% endif %}
+            {% if loop.index >= 2 %}
+            <div class="plan-feature">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Intermediate & advanced content</span>
+            </div>
+            <div class="plan-feature">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Priority support</span>
+            </div>
+            {% endif %}
+            {% if loop.index >= 3 %}
+            <div class="plan-feature">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Full course library access</span>
+            </div>
+            <div class="plan-feature">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Certificate of completion</span>
+            </div>
+            {% endif %}
+            <div class="plan-feature">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>{{ plan['billing_cycle'] }} billing</span>
+            </div>
+        </div>
+
+        <div class="plan-action">
+            {% if active_plan_id == plan['id'] %}
+                <button class="btn-custom btn-secondary-custom w-100" disabled>
+                    <i class="bi bi-check-lg"></i> Current Plan
+                </button>
+            {% else %}
+                <a href="/subscribe/{{ plan['id'] }}" class="btn-custom {% if loop.index == 2 %}btn-primary-custom{% else %}btn-outline-primary{% endif %} w-100">
+                    <i class="bi bi-bookmark-plus"></i> Subscribe Now
+                </a>
+            {% endif %}
         </div>
     </div>
     {% endfor %}
-
 </div>
 
 {% endblock %}
